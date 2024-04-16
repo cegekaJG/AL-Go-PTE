@@ -72,7 +72,7 @@ jobs:
       releaseVersion: ${{ steps.createreleasenotes.outputs.releaseVersion }}
     steps:
       - name: Dump Workflow Information
-        uses: cegekaJG/AL-Go-Actions/DumpWorkflowInfo@main
+        uses: cegekaJG/AL-Go-Actions/DumpWorkflowInfo@update-cleanup
         with:
           shell: powershell
 
@@ -81,21 +81,21 @@ jobs:
 
       - name: Initialize the workflow
         id: init
-        uses: cegekaJG/AL-Go-Actions/WorkflowInitialize@main
+        uses: cegekaJG/AL-Go-Actions/WorkflowInitialize@update-cleanup
         with:
           shell: powershell
           eventId: "DO0094"
 
       - name: Read settings
         id: ReadSettings
-        uses: cegekaJG/AL-Go-Actions/ReadSettings@main
+        uses: cegekaJG/AL-Go-Actions/ReadSettings@update-cleanup
         with:
           shell: powershell
           get: templateUrl,repoName
 
       - name: Read secrets
         id: ReadSecrets
-        uses: cegekaJG/AL-Go-Actions/ReadSecrets@main
+        uses: cegekaJG/AL-Go-Actions/ReadSecrets@update-cleanup
         with:
           shell: powershell
           gitHubSecrets: ${{ toJson(secrets) }}
@@ -104,12 +104,12 @@ jobs:
   
       - name: Determine Projects
         id: determineProjects
-        uses: cegekaJG/AL-Go-Actions/DetermineProjectsToBuild@main
+        uses: cegekaJG/AL-Go-Actions/DetermineProjectsToBuild@update-cleanup
         with:
           shell: powershell
 
       - name: Check for updates to AL-Go system files
-        uses: cegekaJG/AL-Go-Actions/CheckForUpdates@main
+        uses: cegekaJG/AL-Go-Actions/CheckForUpdates@update-cleanup
         with:
           shell: powershell
           templateUrl: ${{ env.templateUrl }}
@@ -194,7 +194,7 @@ jobs:
 
       - name: Prepare release notes
         id: createreleasenotes
-        uses: cegekaJG/AL-Go-Actions/CreateReleaseNotes@main
+        uses: cegekaJG/AL-Go-Actions/CreateReleaseNotes@update-cleanup
         with:
           shell: powershell
           parentTelemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
@@ -237,13 +237,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Read settings
-        uses: cegekaJG/AL-Go-Actions/ReadSettings@main
+        uses: cegekaJG/AL-Go-Actions/ReadSettings@update-cleanup
         with:
           shell: powershell
 
       - name: Read secrets
         id: ReadSecrets
-        uses: cegekaJG/AL-Go-Actions/ReadSecrets@main
+        uses: cegekaJG/AL-Go-Actions/ReadSecrets@update-cleanup
         with:
           shell: powershell
           gitHubSecrets: ${{ toJson(secrets) }}
@@ -281,7 +281,7 @@ jobs:
             });
 
       - name: Deliver to NuGet
-        uses: cegekaJG/AL-Go-Actions/Deliver@main
+        uses: cegekaJG/AL-Go-Actions/Deliver@update-cleanup
         if: ${{ fromJson(steps.ReadSecrets.outputs.Secrets).nuGetContext != '' }}
         env:
           Secrets: '${{ steps.ReadSecrets.outputs.Secrets }}'
@@ -294,7 +294,7 @@ jobs:
           atypes: 'Apps,TestApps'
 
       - name: Deliver to Storage
-        uses: cegekaJG/AL-Go-Actions/Deliver@main
+        uses: cegekaJG/AL-Go-Actions/Deliver@update-cleanup
         if: ${{ fromJson(steps.ReadSecrets.outputs.Secrets).storageContext != '' }}
         env:
           Secrets: '${{ steps.ReadSecrets.outputs.Secrets }}'
@@ -338,13 +338,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Read settings
-        uses: cegekaJG/AL-Go-Actions/ReadSettings@main
+        uses: cegekaJG/AL-Go-Actions/ReadSettings@update-cleanup
         with:
           shell: powershell
 
       - name: Read secrets
         id: ReadSecrets
-        uses: cegekaJG/AL-Go-Actions/ReadSecrets@main
+        uses: cegekaJG/AL-Go-Actions/ReadSecrets@update-cleanup
         with:
           shell: powershell
           gitHubSecrets: ${{ toJson(secrets) }}
@@ -352,7 +352,7 @@ jobs:
           useGhTokenWorkflowForPush: '${{ github.event.inputs.useGhTokenWorkflow }}'
 
       - name: Update Version Number
-        uses: cegekaJG/AL-Go-Actions/IncrementVersionNumber@main
+        uses: cegekaJG/AL-Go-Actions/IncrementVersionNumber@update-cleanup
         with:
           shell: powershell
           token: ${{ steps.ReadSecrets.outputs.TokenForPush }}
@@ -370,7 +370,7 @@ jobs:
 
       - name: Finalize the workflow
         id: PostProcess
-        uses: cegekaJG/AL-Go-Actions/WorkflowPostProcess@main
+        uses: cegekaJG/AL-Go-Actions/WorkflowPostProcess@update-cleanup
         with:
           shell: powershell
           eventId: "DO0094"
