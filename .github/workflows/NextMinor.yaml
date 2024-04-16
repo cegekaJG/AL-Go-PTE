@@ -30,7 +30,7 @@ jobs:
       workflowDepth: ${{ steps.DetermineWorkflowDepth.outputs.WorkflowDepth }}
     steps:
       - name: Dump Workflow Information
-        uses: cegekaJG/AL-Go-Actions/DumpWorkflowInfo@main
+        uses: cegekaJG/AL-Go-Actions/DumpWorkflowInfo@update-cleanup
         with:
           shell: powershell
 
@@ -41,14 +41,14 @@ jobs:
 
       - name: Initialize the workflow
         id: init
-        uses: cegekaJG/AL-Go-Actions/WorkflowInitialize@main
+        uses: cegekaJG/AL-Go-Actions/WorkflowInitialize@update-cleanup
         with:
           shell: powershell
           eventId: "DO0100"
 
       - name: Read settings
         id: ReadSettings
-        uses: cegekaJG/AL-Go-Actions/ReadSettings@main
+        uses: cegekaJG/AL-Go-Actions/ReadSettings@update-cleanup
         with:
           shell: powershell
 
@@ -59,7 +59,7 @@ jobs:
 
       - name: Determine Projects To Build
         id: determineProjectsToBuild
-        uses: cegekaJG/AL-Go-Actions/DetermineProjectsToBuild@main
+        uses: cegekaJG/AL-Go-Actions/DetermineProjectsToBuild@update-cleanup
         with:
           shell: powershell
           maxBuildDepth: ${{ env.workflowDepth }}
@@ -96,7 +96,7 @@ jobs:
 
       - name: Finalize the workflow
         id: PostProcess
-        uses: cegekaJG/AL-Go-Actions/WorkflowPostProcess@main
+        uses: cegekaJG/AL-Go-Actions/WorkflowPostProcess@update-cleanup
         with:
           shell: powershell
           eventId: "DO0100"
