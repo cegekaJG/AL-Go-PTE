@@ -1,9 +1,6 @@
 {
-  "country": "at",
-  "generateDependencyArtifact": true,
+  "country": "us",
   "appFolders": [],
   "testFolders": [],
-  "bcptTestFolders": [],
-  "installApps":[],
-  "appDependencyProbingPaths":[]
+  "bcptTestFolders": []
 }
