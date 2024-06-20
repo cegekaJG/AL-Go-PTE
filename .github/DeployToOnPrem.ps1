@@ -1,22 +1,20 @@
 Param(
-    [Hashtable]$parameters = @{
-        [string] "type"               = "CD"; # Type of delivery (CD or Release)
-        "apps"                        = $null; # Path to folder containing apps to deploy
-        [string] "EnvironmentType"    = "SaaS"; # Environment type
-        "EnvironmentName"             = $null; # Environment name
-        "Branches"                    = $null; # Branches which should deploy to this environment (from settings)
-        [string] "AuthContext"        = '{}'; # AuthContext in a compressed Json structure
-        "BranchesFromPolicy"          = $null; # Branches which should deploy to this environment (from GitHub environments)
-        "Projects"                    = "."; # Projects to deploy to this environment
-        [bool] "ContinuousDeployment" = $false; # Is this environment setup for continuous deployment?
-        [string] "runs-on"            = "windows-latest"; # GitHub runner to be used to run the deployment script
-        [string] "SyncMode"           = "Add"; # Sync mode for the deployment. (Add or ForceSync)
-        [string] "bcVersion"          = ""; # Version string of the Business Central server to deploy to.
-        [string] "modulePath"         = ""; # Path to the module to deploy the app to. Used to circumvent "Import-NAVModules" in the deployment script.
-        [string] "folderVersion"      = ""; # Name of the folder leading to the system files of the Business Central server. If given without modulePath, modulePath will be set to "C:\Program Files\Microsoft Dynamics 365 Business Central\$folderVersion\Service\NavAdminTool.ps1".
-        [string] "dplScriptVersion"   = "v0.2.12"; # Version of the deployment script to download.
-        [string] "dplScriptUrl"       = ""; # URL to the deployment script to download.
-    }
+    [string]$type = "CD", # Type of delivery (CD or Release)
+    $apps = $null, # Path to folder containing apps to deploy
+    [string]$EnvironmentType = "SaaS", # Environment type
+    $EnvironmentName = $null, # Environment name
+    $Branches = $null, # Branches which should deploy to this environment (from settings)
+    [string]$AuthContext = '{}', # AuthContext in a compressed Json structure
+    $BranchesFromPolicy = $null, # Branches which should deploy to this environment (from GitHub environments)
+    $Projects = ".", # Projects to deploy to this environment
+    [bool]$ContinuousDeployment = $false, # Is this environment setup for continuous deployment?
+    [string]$runs_on            = "windows-latest", # GitHub runner to be used to run the deployment script
+    [string]$SyncMode           = "Add", # Sync mode for the deployment. (Add or ForceSync)
+    [string]$bcVersion          = "", # Version string of the Business Central server to deploy to.
+    [string]$modulePath         = "", # Path to the module to deploy the app to. Used to circumvent "Import-NAVModules" in the deployment script.
+    [string]$folderVersion      = "", # Name of the folder leading to the system files of the Business Central server. If given without modulePath, modulePath will be set to "C:\Program Files\Microsoft Dynamics 365 Business Central\$folderVersion\Service\NavAdminTool.ps1".
+    [string]$dplScriptVersion   = "v0.2.12", # Version of the deployment script to download.
+    [string]$dplScriptUrl       = "" # URL to the deployment script to download.
 )
 
 function New-TemporaryFolder {
@@ -53,11 +51,14 @@ function Get-PublishScript {
     param (
         [Parameter(Mandatory = $true)]
         [string]$dplScriptVersion,
-        [string]$dplScriptUrl = "https://raw.githubusercontent.com/CBS-BC-AT-Internal/INT.utilities/$dplScriptVersion/powershell/Update-NAVApp.ps1",
+        [string]$dplScriptUrl,
         [Parameter(Mandatory = $true)]
         [string]$outputPath
     )
     Write-Host "`nDownloading the deployment script..."
+    if (-not $dplScriptUrl) {
+        $dplScriptUrl = "https://raw.githubusercontent.com/CBS-BC-AT-Internal/INT.utilities/$dplScriptVersion/powershell/Update-NAVApp.ps1"
+    }
     Write-Host "URL: $dplScriptUrl"
     if (-not (Test-Path -Path $outputPath)) {
         throw "Output path '$outputPath' does not exist."
@@ -122,15 +123,14 @@ function Remove-TempFiles {
 }
 
 $ErrorActionPreference = "Stop"
-$parameters | ConvertTo-Json -Depth 99 | Out-Host
 $tempPath = New-TemporaryFolder
-Copy-AppFilesToFolder -appFiles $parameters.apps -folder $tempPath | Out-Null
+Copy-AppFilesToFolder -appFiles $apps -folder $tempPath | Out-Null
 $appsList = Get-AppList -outputPath $tempPath
 $deployScriptPath = Get-PublishScript -outputPath $tempPath -dplScriptVersion $dplScriptVersion -dplScriptUrl $dplScriptUrl
-$forceSync = $parameters.SyncMode -eq "ForceSync"
+$forceSync = $SyncMode -eq "ForceSync"
 
 $deployAppParams = @{
-    srvInst          = $parameters.EnvironmentName
+    srvInst          = $EnvironmentName
     deployScriptPath = $deployScriptPath
     bcVersion        = $bcVersion
     modulePath       = $modulePath
@@ -143,5 +143,5 @@ foreach ($app in $appsList) {
     Deploy-App @deployAppParams
 }
 
-Write-Host "`nSuccessfully deployed all apps to ${parameters.EnvironmentName}."
+Write-Host "`nSuccessfully deployed all apps to $EnvironmentName."
 Remove-TempFiles -tempPath $tempPath
