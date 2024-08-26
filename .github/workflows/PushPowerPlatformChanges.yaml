@@ -11,6 +11,7 @@ on:
         required: false
 
 permissions:
+  actions: read
   contents: read
   id-token: write
 
@@ -31,7 +32,6 @@ jobs:
         uses: cegekaJG/AL-Go-Actions/WorkflowInitialize@publish-testmaster
         with:
           shell: powershell
-          eventId: "DO0103"
 
       - name: EnvName
         env:
@@ -92,7 +92,9 @@ jobs:
       - name: Finalize the workflow
         if: always()
         uses: cegekaJG/AL-Go-Actions/WorkflowPostProcess@publish-testmaster
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         with:
           shell: powershell
-          eventId: "DO0103"
           telemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
+          currentJobContext: ${{ toJson(job) }}
