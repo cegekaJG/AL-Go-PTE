@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
   actions: read
-  pages: write
+  contents: read
   id-token: write
+  pages: write
 
 defaults:
   run:
@@ -33,7 +33,6 @@ jobs:
         uses: cegekaJG/AL-Go-Actions/WorkflowInitialize@cegeka
         with:
           shell: powershell
-          eventId: "DO0097"
 
       - name: Read settings
         uses: cegekaJG/AL-Go-Actions/ReadSettings@cegeka
@@ -69,3 +68,13 @@ jobs:
         if: steps.DetermineDeploymentEnvironments.outputs.deployALDocArtifact == 1
         id: deployment
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
+
+      - name: Finalize the workflow
+        if: always()
+        uses: cegekaJG/AL-Go-Actions/WorkflowPostProcess@cegeka
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          shell: powershell
+          telemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
+          currentJobContext: ${{ toJson(job) }}

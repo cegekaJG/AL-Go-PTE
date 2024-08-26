@@ -38,9 +38,10 @@ on:
         default: false
 
 permissions:
+  actions: read
   contents: write
-  pull-requests: write
   id-token: write
+  pull-requests: write
 
 defaults:
   run:
@@ -68,7 +69,6 @@ jobs:
         uses: cegekaJG/AL-Go-Actions/WorkflowInitialize@cegeka
         with:
           shell: powershell
-          eventId: "DO0102"
 
       - name: Read settings
         uses: cegekaJG/AL-Go-Actions/ReadSettings@cegeka
@@ -89,7 +89,6 @@ jobs:
         with:
           shell: powershell
           token: ${{ steps.ReadSecrets.outputs.TokenForPush }}
-          parentTelemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
           project: ${{ github.event.inputs.project }}
           type: 'Performance Test App'
           name: ${{ github.event.inputs.name }}
@@ -102,7 +101,9 @@ jobs:
       - name: Finalize the workflow
         if: always()
         uses: cegekaJG/AL-Go-Actions/WorkflowPostProcess@cegeka
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         with:
           shell: powershell
-          eventId: "DO0102"
           telemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
+          currentJobContext: ${{ toJson(job) }}
